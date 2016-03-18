@@ -14,4 +14,9 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
+/* GET band search form */
+router.get('/bandSearchForm', function(req, res, next){
+	res.render('bandSearchForm', {title: 'Band Search'});
+});
+
 module.exports = router;
