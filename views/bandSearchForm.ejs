@@ -12,6 +12,9 @@
 		<script src="/javascripts/bandSearch.js"></script>
   </head>
   <body id="bandSearchForm">
+  	<header>
+  		<% include partials/header %>
+  	</header>
     <div class="container">
     	<div class="row">
     		<div class="col-xs-3">
@@ -101,7 +104,7 @@ $('.band_form').on('submit', function(){
         success: function(data, textStatus, jqXHR){
           console.log(data);
           console.log(data[0]['artists'][0]['image_url']);
-          var bandStr = "<img style='width:250px;' src='"+data[0]['artists'][0]['image_url']+"'>";
+          var bandStr = "<img style='width:250px;border-radius:10px;' src='"+data[0]['artists'][0]['image_url']+"'>";
           bandStr += "<p>"+data[0]['formatted_datetime']+"</p>";
           bandStr += "<p>"+data[0]['formatted_location']+"</p>";
           bandStr += "<p>"+data[0]['title']+"</p>";

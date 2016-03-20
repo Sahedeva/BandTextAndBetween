@@ -8,6 +8,19 @@ a {
   color: #00B7FF;
 }
 
+#navHeader {
+	margin-top:-50px;
+}
+
+#navBarId {
+	background-color: black;
+	color:gold;
+}
+
+#bandResults {
+	color: gold;
+}
+
 #bandSearchForm {
 	background-image: url("../images/bandImg.jpg");
 	background-size: cover;
@@ -15,6 +28,22 @@ a {
   min-height: 600px;
   margin:0;
 	background-repeat: no-repeat;
+}
+
+#indexPage {
+	background: url("../images/justiceLeagueBandImg.jpg") no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: 55%;
+  background-color: pink;
+	/*background-image: url("../images/justiceLeagueBandImg.jpg");
+	background-size: cover;
+  background-attachment: fixed;
+  min-height: 600px;
+  margin:0;
+  background-position: center; 
+	background-repeat: no-repeat;*/
 }
 
 #map {
