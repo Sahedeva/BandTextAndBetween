@@ -91,7 +91,7 @@ function initMap(latitude,longitude) {
 $('.band_form').on('submit', function(){
   var name = $('#band').val();
   console.log(name)
-  var urlStr="http://api.bandsintown.com/artists/"+name+"/events/search.json?api_version=2.0&app_id=BandTextAndBetween&location=use_geoip&radius=10";
+  var urlStr="https://api.bandsintown.com/artists/"+name+"/events/search.json?api_version=2.0&app_id=BandTextAndBetween&location=use_geoip&radius=10";
   $.ajax({
         url: urlStr,
         headers: { 'Access-Control-Allow-Origin': '*' },
