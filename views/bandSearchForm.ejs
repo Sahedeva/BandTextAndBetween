@@ -2,49 +2,53 @@
 <html>
   <head>
     <title><%= title %></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
     <link rel='stylesheet' href='/stylesheets/style.css' />
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
-    <style>
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-      #map {
-        height: 400px;
-        width: 50%;
-      }
-    </style>
+    <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+		<script src="/javascripts/bandSearch.js"></script>
   </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-    <form class="new_track_form" name="new_track_form" action="/new_track" method="POST">
-       	<input type="text" name="band" placeholder="Band...">
-       	<br><br>
-        <input type="text" name="content_url" placeholder="Sound Cloud URL...">
-        <br><br>
-       	<input type="text" name="avatar_url" placeholder="Avatar URL...">
-       	<br><br>
-       	<input type="text" name="artist_name" placeholder="Artist Name...">
-        <br><br>
-        <input type="text" name="artist_id" placeholder="Artist Id...">
-        <br><br>
-       	<nav class="navbar navbar-default navbar-fixed-bottom">
-          	<div class="footbox">
-             	<input class="submit-btn" type="submit" name="submit" value="Submit">
-          	</div>
-       	</nav>
-    </form>
-    <p>Click the button to get your coordinates.</p>
-
-<button onclick="getLocation()">Try It</button>
-
-<p id="demo"></p>
-<p id="map"></p>
+  <body id="bandSearchForm">
+    <div class="container">
+    	<div class="row">
+    		<div class="col-xs-3">
+    			<div class="row">
+    				<div class="col-xs-12">
+    					<h1 style="text-align:center;"><%= title %></h1>
+    					<p style="text-align:center;">Welcome to <%= title %></p>
+					    <form class="band_form" name="band_form" action="/band_search" method="POST">
+					       	<input type="text" id="band" name="band" placeholder="Band...">
+					       	<br><br>
+					        <input class="submit-btn" type="submit" name="submit" value="Submit">
+					    </form>
+			    	</div>
+			    	<div class="col-xs-12">
+			    		<div id="bandResults"></div>
+			    	</div>
+			    </div>
+    		</div>
+    		<div class="col-xs-9">
+    			<div class="row">
+    				<div class="col-xs-12">
+					    <p>Your location: 
+							<span id="demo"></span>
+							</p>
+						</div>
+						<div class="col-xs-12">
+							<p id="map"></p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<a href=""></a>
 <script>
 var x = document.getElementById("demo");
+var map;
+getLocation();
 function getLocation() {
     if (navigator.geolocation) {
         navigator.geolocation.watchPosition(showPosition);
@@ -56,16 +60,16 @@ function showPosition(position) {
 	var latitude = position.coords.latitude;
 	var longitude = position.coords.longitude;
   x.innerHTML="Latitude: " + position.coords.latitude + 
-    "<br>Longitude: " + position.coords.longitude;
+    " Longitude: " + position.coords.longitude;
   initMap(latitude,longitude);
 
 }
 function initMap(latitude,longitude) {
   // Create a map object and specify the DOM element for display.
-  var map = new google.maps.Map(document.getElementById('map'), {
+  map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: latitude, lng: longitude},
     scrollwheel: false,
-    zoom: 8
+    zoom: 11
   });
 
   var marker = new google.maps.Marker({
@@ -84,6 +88,49 @@ function initMap(latitude,longitude) {
 	  }
 	}
 }
+$('.band_form').on('submit', function(){
+  var name = $('#band').val();
+  console.log(name)
+  var urlStr="http://api.bandsintown.com/artists/"+name+"/events/search.json?api_version=2.0&app_id=BandTextAndBetween&location=use_geoip&radius=10";
+  $.ajax({
+        url: urlStr,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+       	crossDomain: true,
+        dataType: "jsonp",
+        method: "GET",
+        success: function(data, textStatus, jqXHR){
+          console.log(data);
+          console.log(data[0]['artists'][0]['image_url']);
+          var bandStr = "<img style='width:250px;' src='"+data[0]['artists'][0]['image_url']+"'>";
+          bandStr += "<p>"+data[0]['formatted_datetime']+"</p>";
+          bandStr += "<p>"+data[0]['formatted_location']+"</p>";
+          bandStr += "<p>"+data[0]['title']+"</p>";
+          bandStr += "<a href='"+data[0]['facebook_rsvp_url']+"'>Facebook Rsvp</a>";
+          $('#bandResults').html(bandStr);
+          var latitude = data[0]['venue']['latitude'];
+          var longitude = data[0]['venue']['longitude'];
+          var venueName = data[0]['venue']['name'];
+          var marker = new google.maps.Marker({
+				    position: {lat: latitude, lng: longitude},
+				    map: map,
+				    animation: google.maps.Animation.DROP,
+				    title: venueName
+				  });
+				  marker.addListener('click', toggleBounce);
+				  function toggleBounce() {
+					  if (marker.getAnimation() !== null) {
+					    marker.setAnimation(null);
+					  } else {
+					    marker.setAnimation(google.maps.Animation.BOUNCE);
+					  }
+					}
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown){
+            alert("Status: " + textStatus); alert("Error: " + errorThrown);
+        }
+     });
+  return false
+});
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAEgBZqE59Q59F788Xd-oKno3vguJj8LnU&callback=initMap"
     async defer></script>

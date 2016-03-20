@@ -1,8 +1,23 @@
 body {
   padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  height: 100%;
 }
 
 a {
   color: #00B7FF;
+}
+
+#bandSearchForm {
+	background-image: url("../images/bandImg.jpg");
+	background-size: cover;
+  background-attachment: fixed;
+  min-height: 600px;
+  margin:0;
+	background-repeat: no-repeat;
+}
+
+#map {
+  height: 500px;
+  width: 80%;
 }
