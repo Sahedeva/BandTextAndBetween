@@ -135,7 +135,7 @@ $('.timeSearch_form').on('submit', function(){
 	          var longitude = data[i]['venue']['longitude'];
 	          var venueName = data[i]['venue']['name'];
 	          var url = data[i]['venue']['url'];
-	          venues.push([venueName,url,latitude,longitude])
+	          venues.push([venueName,url,latitude,longitude]);
 	          var marker = new google.maps.Marker({
 	          	id: i,
 					    position: {lat: venues[i][2], lng: venues[i][3]},
@@ -150,32 +150,36 @@ $('.timeSearch_form').on('submit', function(){
               maxWidth: 200,
               });
             function infor(id){
-            	var directionsService = new google.maps.DirectionsService();
-							var request = {
-    						origin: {lat: posiLat, lng: posiLong},
-    						destination: {lat: venues[id][2], lng: venues[id][3]},
-    						travelMode: google.maps.DirectionsTravelMode.DRIVING
-							};
-							var driveInfo;
-							directionsService.route( request, function( response, status ) {
-								if ( status === 'OK' ) {
-        					var point = response.routes[0].legs[0];
-        					driveInfo = 'Estimated travel time: ' + point.duration.text + ' (' + point.distance.text + ')';
-        					console.log(driveInfo);
-        				}
-							});
-							return "<ul style='list-style:none;'><li><a target='_blank' href='"+venues[id][1]+"'><b>"+venues[id][0]+"</b></a></li><li>Latitude: "+venues[id][2]+"</li><li>Longitude: "+venues[id][3]+"</li><li>"+driveInfo+"</li></ul>";
+            	console.log(venues[id]);
+							return "<ul style='list-style:none;'><li><a target='_blank' href='"+venues[id][1]+"'><b>"+venues[id][0]+"</b></a></li><li>Latitude: "+venues[id][2]+"</li><li>Longitude: "+venues[id][3]+"</li><li class='drivingInfo'><button class='driveButton' value='"+id+"'>Drving Info</button></li></ul>";
             }
-              marker.addListener('click', function() {
-                infowindow.setContent(infor(this.id));
-                infowindow.open(map, this);
-                map.setZoom(14);
-                map.setCenter(this.getPosition());
-              });
-              infowindow.addListener('closeclick', function() {
-              	map.setZoom(11);
-              	map.setCenter({lat: posiLat, lng: posiLong})
-              });
+            marker.addListener('click', function() {
+              infowindow.setContent(infor(this.id));
+              infowindow.open(map, this);
+              map.setZoom(14);
+              map.setCenter(this.getPosition());
+              $(".driveButton").on('click', function(){
+		          	var id = $(this).val()
+			          var directionsService = new google.maps.DirectionsService();
+								var request = {
+		  						origin: {lat: posiLat, lng: posiLong},
+		  						destination: {lat: venues[id][2], lng: venues[id][3]},
+		  						travelMode: google.maps.DirectionsTravelMode.DRIVING
+								};
+								directionsService.route( request, function( response, status ) {
+									if ( status === 'OK' ) {
+		      					var point = response.routes[0].legs[0];
+		      					var driveInfo = 'Estimated travel time: ' + point.duration.text + ' (' + point.distance.text + ')';
+		      					console.log(driveInfo);
+		      					$(".drivingInfo").html(driveInfo);
+		      				}
+								});
+							});
+            });
+            infowindow.addListener('closeclick', function() {
+            	map.setZoom(11);
+            	map.setCenter({lat: posiLat, lng: posiLong})
+            });
           }
           console.log(venues);
 				  function toggleBounce() {
