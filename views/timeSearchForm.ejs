@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+		<script src="/javascripts/bandSearch.js"></script>
+  </head>
+  <body id="bandSearchForm">
+  	<header>
+  		<% include partials/header %>
+  	</header>
+    <div class="container">
+    	<div class="row">
+    		<div class="col-xs-3">
+    			<div class="row">
+    				<div class="col-xs-12">
+    					<h1 style="text-align:center;"><%= title %></h1>
+    					<p style="text-align:center;">Welcome to <%= title %></p>
+					    <form class="timeSearch_form" name="timeSearch_form" action="/time_search" method="POST">
+					       	<input type="date" id="startDate" name="startDate" placeholder="Start Date...">
+					       	<br><br>
+					       	<input type="date" id="endDate" name="endDate" placeholder="End Date...">
+					       	<br><br>
+					        <input class="submit-btn" type="submit" name="submit" value="Submit">
+					    </form>
+			    	</div>
+			    	<div class="col-xs-12">
+			    		<div id="bandResults"></div>
+			    	</div>
+			    </div>
+    		</div>
+    		<div class="col-xs-9">
+    			<div class="row">
+    				<div class="col-xs-12">
+					    <p>Your location: 
+							<span id="demo"></span>
+							</p>
+						</div>
+						<div class="col-xs-12">
+							<p id="map"></p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+<script>
+var x = document.getElementById("demo");
+var map;
+var marker;
+var posiLat;
+var posiLong;
+getLocation();
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(showPosition);
+    } else { 
+        x.innerHTML = "Geolocation is not supported by this browser.";}
+    }
+    
+function showPosition(position) {
+	posiLat = position.coords.latitude;
+	posiLong = position.coords.longitude;
+  x.innerHTML="Latitude: " + position.coords.latitude + 
+    " Longitude: " + position.coords.longitude;
+  initMap(posiLat,posiLong);
+}
+function initMap(latitude,longitude) {
+  // Create a map object and specify the DOM element for display.
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: {lat: latitude, lng: longitude},
+    scrollwheel: true,
+    zoom: 11,
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  });
+
+  marker = new google.maps.Marker({
+    position: {lat: latitude, lng: longitude},
+    map: map,
+    animation: google.maps.Animation.DROP,
+    title: 'My Location!',
+    icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+  });
+  // marker.addListener('click', toggleBounce);
+
+ //  function toggleBounce() {
+	//   if (marker.getAnimation() !== null) {
+	//     marker.setAnimation(null);
+	//   } else {
+	//     marker.setAnimation(google.maps.Animation.BOUNCE);
+	//   }
+	// }
+}
+$('.timeSearch_form').on('submit', function(){
+  var startDate = $('#startDate').val();
+  var endDate = $('#endDate').val();
+  var venues = [];
+  console.log(startDate,endDate)
+  var urlStr="https://api.bandsintown.com/events/search.json?date="+startDate+","+endDate+"&location=use_geoip&radius=10&app_id=BandTextAndBetween";
+  $.ajax({
+        url: urlStr,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+       	crossDomain: true,
+        dataType: "jsonp",
+        method: "GET",
+        success: function(data, textStatus, jqXHR){
+          console.log(data);
+          console.log(data.length);
+          for (i=0;i<data.length;i++){
+          	console.log(data[i]);
+          	console.log(data[i]['datetime']);
+          	var year = data[i]['datetime'].substring(0,4);
+          	var month = data[i]['datetime'].substring(5,7);
+          	var day = data[i]['datetime'].substring(8,10);
+          	var hour = data[i]['datetime'].substring(11,13);
+          	var min = data[i]['datetime'].substring(14,16);
+          	var sec = data[i]['datetime'].substring(17,19);
+          	var date = new Date(Date.UTC(year, day, month, hour, min, sec));
+          	console.log(date)
+          	var options = {
+						  year: 'numeric', month: 'long', day: 'numeric', weekday: 'long',
+						  hour: 'numeric', minute: 'numeric', second: 'numeric',
+						  hour12: true
+						};
+						var prettyDateTime = new Intl.DateTimeFormat('en-US', options).format(date);
+						// console.log(data[i]['datetime'].toLocaleString('en-US', options));
+          	var bandStr = "<a target='_blank' href='"+data[i]['artists'][0]['url']+"'>"+data[i]['artists'][0]['name']+"</a>@<a style='color:red;' href='"+data[i]['url']+"'><b>"+data[i]['venue']['name']+"</b></a><p>"+prettyDateTime+"</p>"
+          	$('#bandResults').append(bandStr);
+          	var latitude = data[i]['venue']['latitude'];
+	          var longitude = data[i]['venue']['longitude'];
+	          var venueName = data[i]['venue']['name'];
+	          var url = data[i]['venue']['url'];
+	          venues.push([venueName,url,latitude,longitude])
+	          var marker = new google.maps.Marker({
+	          	id: i,
+					    position: {lat: venues[i][2], lng: venues[i][3]},
+					    map: map,
+					    animation: google.maps.Animation.DROP,
+					    title: venues[i][0]
+					  });
+					  // marker.addListener('click', toggleBounce);
+					  // var contentString = "<ul><li><a target='_blank' href='"+venues[i][1]+"'><b>"+venues[i][0]+"</b></a></li><li>Latitude: "+venues[i][2]+"</li><li>Longitude: "+venues[i][3]+"</li></ul>";
+            var infowindow = new google.maps.InfoWindow({
+              // content: contentString,
+              maxWidth: 200,
+              });
+            function infor(id){
+            	var directionsService = new google.maps.DirectionsService();
+							var request = {
+    						origin: {lat: posiLat, lng: posiLong},
+    						destination: {lat: venues[id][2], lng: venues[id][3]},
+    						travelMode: google.maps.DirectionsTravelMode.DRIVING
+							};
+							var driveInfo;
+							directionsService.route( request, function( response, status ) {
+								if ( status === 'OK' ) {
+        					var point = response.routes[0].legs[0];
+        					driveInfo = 'Estimated travel time: ' + point.duration.text + ' (' + point.distance.text + ')';
+        					console.log(driveInfo);
+        				}
+							});
+							return "<ul style='list-style:none;'><li><a target='_blank' href='"+venues[id][1]+"'><b>"+venues[id][0]+"</b></a></li><li>Latitude: "+venues[id][2]+"</li><li>Longitude: "+venues[id][3]+"</li><li>"+driveInfo+"</li></ul>";
+            }
+              marker.addListener('click', function() {
+                infowindow.setContent(infor(this.id));
+                infowindow.open(map, this);
+                map.setZoom(14);
+                map.setCenter(this.getPosition());
+              });
+              infowindow.addListener('closeclick', function() {
+              	map.setZoom(11);
+              	map.setCenter({lat: posiLat, lng: posiLong})
+              });
+          }
+          console.log(venues);
+				  function toggleBounce() {
+					  if (marker.getAnimation() !== null) {
+					    marker.setAnimation(null);
+					  } else {
+					    marker.setAnimation(google.maps.Animation.BOUNCE);
+					  }
+					}
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown){
+            alert("Status: " + textStatus); alert("Error: " + errorThrown);
+        }
+     });
+  return false
+});
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAEgBZqE59Q59F788Xd-oKno3vguJj8LnU&callback=initMap"
+    async defer></script>
+  </body>
+</html>

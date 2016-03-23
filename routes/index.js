@@ -19,4 +19,9 @@ router.get('/bandSearchForm', function(req, res, next){
 	res.render('bandSearchForm', {title: 'Band Search'});
 });
 
+/* GET time search form */
+router.get('/timeSearchForm', function(req, res, next){
+	res.render('timeSearchForm', {title: 'Time Search'});
+});
+
 module.exports = router;
