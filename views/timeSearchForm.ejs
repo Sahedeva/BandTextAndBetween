@@ -101,7 +101,7 @@ $('.timeSearch_form').on('submit', function(){
   var endDate = $('#endDate').val();
   var venues = [];
   console.log(startDate,endDate)
-  var urlStr="https://api.bandsintown.com/events/search.json?date="+startDate+","+endDate+"&location=use_geoip&radius=10&app_id=BandTextAndBetween";
+  var urlStr="https://api.bandsintown.com/events/search.json?date="+startDate+","+endDate+"&location=Austin,TX&app_id=BandTextAndBetween";
   $.ajax({
         url: urlStr,
         headers: { 'Access-Control-Allow-Origin': '*' },
@@ -114,22 +114,65 @@ $('.timeSearch_form').on('submit', function(){
           for (i=0;i<data.length;i++){
           	console.log(data[i]);
           	console.log(data[i]['datetime']);
-          	var year = data[i]['datetime'].substring(0,4);
-          	var month = data[i]['datetime'].substring(5,7);
-          	var day = data[i]['datetime'].substring(8,10);
-          	var hour = data[i]['datetime'].substring(11,13);
-          	var min = data[i]['datetime'].substring(14,16);
-          	var sec = data[i]['datetime'].substring(17,19);
-          	var date = new Date(Date.UTC(year, day, month, hour, min, sec));
-          	console.log(date)
-          	var options = {
-						  year: 'numeric', month: 'long', day: 'numeric', weekday: 'long',
-						  hour: 'numeric', minute: 'numeric', second: 'numeric',
-						  hour12: true
-						};
-						var prettyDateTime = new Intl.DateTimeFormat('en-US', options).format(date);
+          	var year = parseInt(data[i]['datetime'].substring(0,4));
+          	var month = parseInt(data[i]['datetime'].substring(5,7));
+          	var day = parseInt(data[i]['datetime'].substring(8,10));
+          	var hour = parseInt(data[i]['datetime'].substring(11,13));
+          	var min = parseInt(data[i]['datetime'].substring(14,16));
+          	var sec = parseInt(data[i]['datetime'].substring(17,19));
+            var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            var month = months[month-1];
+            var aP = ((hour >= 12) ? " P.M." : " A.M.");
+          	console.log(year,month,day, hour, min, sec);
+            hour = ((hour > 12) ? hour - 12 : hour);
+              if (hour == 0)
+                hour = "12";
+              min = ((min < 10) ? "0" : "") + min;
+              sec = ((sec < 10) ? "0" : "") + sec;          
+              var time = month + ' ' + day + nth(day) + ' ' + year + ' ' + hour + ':' + min + ':' + sec + aP;
+      //     	var date = new Date(Date.UTC(year, day, month, hour, min, sec));
+      //     	var date1 = new Date(year, month, day, hour, min, sec);
+          	// var date2 = Date.parse(data[i]['datetime']);
+    				// console.log("date2: ",date2);
+      //     	console.log("date1: ",date1);
+      //     	console.log("date: ",date);
+      //     	var options = {
+						//   year: 'numeric', month: 'long', day: 'numeric', weekday: 'long',
+						//   hour: 'numeric', minute: 'numeric', second: 'numeric',
+						//   hour12: true
+						// };
+						// function timeConverter(date2){
+						//   var a = new Date(date2);
+						//   var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+						//   var year = a.getFullYear();
+						//   var month = months[a.getMonth()];
+						//   var date = a.getDate();
+						//   var hour = a.getHours()-5;
+      //         console.log("hour: ",hour);
+						//   var min = a.getMinutes();
+						//   var sec = a.getSeconds();
+						//   hour = "" + ((hour > 12) ? hour - 12 : hour);
+						//   if (hour == 0)
+						//     hour = "12";
+						//   min = ((min < 10) ? "0" : "") + min;
+						//   sec = ((sec < 10) ? "0" : "") + sec;
+						//   var aP = ((hour >= 12) ? " P.M." : " A.M.");
+						//   var time = month + ' ' + date + nth(date) + ' ' + year + ' ' + hour + ':' + min + ':' + sec + aP;
+						//   return time;
+						// }
+						function nth(d) {
+						  if(d>3 && d<21) return 'th'; // thanks kennebec
+						  switch (d % 10) {
+						        case 1:  return "st";
+						        case 2:  return "nd";
+						        case 3:  return "rd";
+						        default: return "th";
+						    }
+						} 
+						// var prettyDate = timeConverter(date2);
+						// var prettyDateTime = new Intl.DateTimeFormat('en-US', options).format(date);
 						// console.log(data[i]['datetime'].toLocaleString('en-US', options));
-          	var bandStr = "<a target='_blank' href='"+data[i]['artists'][0]['url']+"'>"+data[i]['artists'][0]['name']+"</a>@<a style='color:red;' href='"+data[i]['url']+"'><b>"+data[i]['venue']['name']+"</b></a><p>"+prettyDateTime+"</p>"
+          	var bandStr = "<a target='_blank' href='"+data[i]['artists'][0]['url']+"'>"+data[i]['artists'][0]['name']+"</a>@<a target='_blank' style='color:red;' href='"+data[i]['url']+"'><b>"+data[i]['venue']['name']+"</b></a><p>"+time+"</p>"
           	$('#bandResults').append(bandStr);
           	var latitude = data[i]['venue']['latitude'];
 	          var longitude = data[i]['venue']['longitude'];
