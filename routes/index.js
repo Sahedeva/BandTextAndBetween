@@ -24,4 +24,9 @@ router.get('/timeSearchForm', function(req, res, next){
 	res.render('timeSearchForm', {title: 'Time Search'});
 });
 
+/* GET firefox time search form */
+router.get('/firefoxTimeSearch', function(req, res, next){
+	res.render('firefoxTimeSearch', {title: 'Firefox Time Search'});
+});
+
 module.exports = router;
