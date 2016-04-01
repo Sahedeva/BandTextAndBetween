@@ -55,6 +55,7 @@ var map;
 var marker;
 var posiLat;
 var posiLong;
+var initializeMap = false;
 getLocation();
 function getLocation() {
     if (navigator.geolocation) {
@@ -68,7 +69,10 @@ function showPosition(position) {
 	posiLong = position.coords.longitude;
   x.innerHTML="Latitude: " + position.coords.latitude + 
     " Longitude: " + position.coords.longitude;
-  initMap(posiLat,posiLong);
+  if (initializeMap == false){
+    initMap(posiLat,posiLong);
+  }
+  initializeMap = true;
 }
 function initMap(latitude,longitude) {
   // Create a map object and specify the DOM element for display.
