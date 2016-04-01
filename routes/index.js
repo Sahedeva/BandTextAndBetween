@@ -26,7 +26,9 @@ router.get('/timeSearchForm', function(req, res, next){
 
 /* GET firefox time search form */
 router.get('/firefoxTimeSearch', function(req, res, next){
-	res.render('firefoxTimeSearch', {title: 'Firefox Time Search'});
+	var month = [["January","01"],["February","02"],["March","03"],["April","04"],["May","05"],["June","06"],["July","07"],["August","08"],["September","09"],["October","10"],["November","11"],["December","12"]];
+	var year = ["2010","2011","2012","2013","2014","2015","2016","2017","2018","2019","2020","2021"];
+	res.render('firefoxTimeSearch', {title: 'Firefox Time Search', month:month,year:year});
 });
 
 module.exports = router;

@@ -23,10 +23,41 @@
     					<h1 style="text-align:center;"><%= title %></h1>
     					<p style="text-align:center;">Welcome to <%= title %></p>
 					    <form class="timeSearch_form" name="timeSearch_form" action="/time_search" method="POST">
-					       	<input type="text" id="startDate" name="startDate" placeholder="Start Date(i.e. 2016-03-31)">
-					       	<br><br>
-					       	<input type="text" id="endDate" name="endDate" placeholder="End Date(i.e.2016-04-01)">
-					       	<br><br>
+                <p style="color:gold;">Start Date</p>
+                <select id="monthS">
+                <% for (var i = 0;i<12;i++){ %>
+                  
+                  <option value="<%= month[i][1] %>"><%= month[i][0] %></option> %>
+
+                <% } %>
+                </select>
+                <div style="display:inline-block" id="daySSelect"></div>
+                <select id="yearS">
+                <% for (var i = 0;i<year.length;i++){ %>
+                  
+                  <option value="<%= year[i] %>"><%= year[i] %></option> %>
+
+                <% } %>
+                </select>
+                <br><br>
+                <p style="color:gold;">End Date</p>
+                <select id="monthE">
+                <% for (var i = 0;i<12;i++){ %>
+                  
+                  <option value="<%= month[i][1] %>"><%= month[i][0] %></option> %>
+
+                <% } %>
+                </select>
+                <div style="display:inline-block" id="dayESelect"></div>
+                <select id="yearE">
+                <% for (var i = 0;i<year.length;i++){ %>
+                  
+                  <option value="<%= year[i] %>"><%= year[i] %></option> %>
+
+                <% } %>
+                </select>
+                <br><br>
+					       
 					        <input class="submit-btn" type="submit" name="submit" value="Submit">
 					    </form>
 			    	</div>
@@ -100,11 +131,53 @@ function initMap(latitude,longitude) {
 	//   }
 	// }
 }
+
+$( "#monthS" )
+  .change(function () {
+    $( "#monthS option:selected" ).each(function() {
+      console.log($('#monthS').val());
+      var monthNum = $('#monthS').val();
+      if(monthNum == "02"){
+        $("#daySSelect").html('<select id="dayS"><% for (var j = 1;j<=28;j++){ %><option value="<%= j %>"><%= j %></option> %><% } %></select>');
+      } else if (monthNum == "04"||monthNum == "06" ||monthNum == "09"||monthNum == "11") {
+        $("#daySSelect").html('<select id="dayS"><% for (var j = 1;j<=30;j++){ %><option value="<%= j %>"><%= j %></option> %><% } %></select>');
+      } else {
+        $("#daySSelect").html('<select id="dayS"><% for (var j = 1;j<=31;j++){ %><option value="<%= j %>"><%= j %></option> %><% } %></select>');
+      }
+    });
+  })
+$( "#monthE" )
+  .change(function () {
+    $( "#monthS option:selected" ).each(function() {
+      console.log($('#monthE').val());
+      var monthNum = $('#monthE').val();
+      if(monthNum == "02"){
+        $("#dayESelect").html('<select id="dayE"><% for (var j = 1;j<=28;j++){ %><option value="<%= j %>"><%= j %></option> %><% } %></select>');
+      } else if (monthNum == "04"||monthNum == "06" ||monthNum == "09"||monthNum == "11") {
+        $("#dayESelect").html('<select id="dayE"><% for (var j = 1;j<=30;j++){ %><option value="<%= j %>"><%= j %></option> %><% } %></select>');
+      } else {
+        $("#dayESelect").html('<select id="dayE"><% for (var j = 1;j<=31;j++){ %><option value="<%= j %>"><%= j %></option> %><% } %></select>');
+      }
+    });
+  })
+  .change();
 $('.timeSearch_form').on('submit', function(){
-  var startDate = $('#startDate').val();
-  var endDate = $('#endDate').val();
+  var startDate = $('#yearS').val()+"-"+$('#monthS').val();
+  var dayS = $('#dayS').val();
+  if(parseInt(dayS)<10){
+    startDate += "-0"+dayS;
+  } else {
+    startDate += "-"+dayS;
+  }
+  var endDate = $('#yearE').val()+"-"+$('#monthE').val();
+  var dayE = $('#dayE').val();
+  if(parseInt(dayE)<10){
+    endDate += "-0"+dayE;
+  } else {
+    endDate += "-"+dayE;
+  }
   var venues = [];
-  console.log(startDate,endDate)
+  console.log(startDate,endDate);
   var urlStr="https://api.bandsintown.com/events/search.json?date="+startDate+","+endDate+"&location=use_geoip&app_id=BandTextAndBetween";
   $.ajax({
         url: urlStr,
