@@ -101,7 +101,7 @@ $('.timeSearch_form').on('submit', function(){
   var endDate = $('#endDate').val();
   var venues = [];
   console.log(startDate,endDate)
-  var urlStr="https://api.bandsintown.com/events/search.json?date="+startDate+","+endDate+"&location=Austin,TX&app_id=BandTextAndBetween";
+  var urlStr="https://api.bandsintown.com/events/search.json?date="+startDate+","+endDate+"&location=use_geoip&app_id=BandTextAndBetween";
   $.ajax({
         url: urlStr,
         headers: { 'Access-Control-Allow-Origin': '*' },
